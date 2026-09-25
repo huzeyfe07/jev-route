@@ -7,7 +7,7 @@ JevRoute sits in front of your agents, tools and model calls: it asks the Jev
 decision engine *which* capability should handle an input, applies a confidence
 gate, and only then invokes the matching handler.
 
-[![CI](https://github.com/jevroute/jev-route/actions/workflows/ci.yml/badge.svg)](https://github.com/jevroute/jev-route/actions/workflows/ci.yml)
+[![CI](https://github.com/huzeyfe07/jev-route/actions/workflows/ci.yml/badge.svg)](https://github.com/huzeyfe07/jev-route/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Lint: ruff](https://img.shields.io/badge/lint-ruff-261230)](https://docs.astral.sh/ruff/)
@@ -75,7 +75,7 @@ gateway exposing the OpenAI chat completions protocol).
 pip install jev-route
 
 # or, editable for development (ruff, mypy, pytest included)
-git clone https://github.com/jevroute/jev-route.git
+git clone https://github.com/huzeyfe07/jev-route.git
 cd jev-route
 python -m pip install -e ".[dev]"
 ```

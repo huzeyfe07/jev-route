@@ -40,9 +40,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/jevroute/jev-route"
-Repository = "https://github.com/jevroute/jev-route"
-Issues = "https://github.com/jevroute/jev-route/issues"
+Homepage = "https://github.com/huzeyfe07/jev-route"
+Repository = "https://github.com/huzeyfe07/jev-route"
+Issues = "https://github.com/huzeyfe07/jev-route/issues"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
