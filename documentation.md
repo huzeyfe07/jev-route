@@ -11,7 +11,7 @@ ilerlemeyi, mimari kararları ve açık soruları burada tutuyoruz.
   uç noktası) üzerinden OpenAI-uyumlu `/chat/completions` protokolü ile çağrılır.
 - **Dil kuralı:** Kod içindeki tüm değişken/fonksiyon/sınıf adları, yorumlar ve
   docstring'ler **İngilizce**. Ekip iletişimi ve bu doküman Türkçe.
-- **Son güncelleme:** 2026-09-25
+- **Son güncelleme:** 2026-09-26
 
 ---
 
@@ -20,18 +20,20 @@ ilerlemeyi, mimari kararları ve açık soruları burada tutuyoruz.
 | Alan | Durum | Not |
 | --- | --- | --- |
 | Proje iskeleti | ✅ Tamamlandı | `src/` layout kuruldu |
-| `pyproject.toml` | ✅ Tamamlandı | Intent-router açıklaması, `requires-python = ">=3.10"`, ruff/mypy/pytest ayarları |
-| `README.md` | ✅ Tamamlandı | Intent-router hızlı başlangıcı |
+| `pyproject.toml` | ✅ Tamamlandı | PEP 639 (`license = "MIT"` + `license-files`), genişletilmiş classifiers/keywords, `fastapi` + `dev` extras, `Documentation`/`Changelog` URL'leri, `package-data: py.typed` |
+| `README.md` | ✅ Tamamlandı | Mimari şema, "Why jev-route?" farklılaşma bölümü, confidence gate **önce/sonra** kanıtı, asciinema/GIF kayıt talimatı, FastAPI örneği linki |
 | `core.py` | ✅ Tamamlandı | `JevClient` (async, `httpx.AsyncClient`), `Choice`/`Score`/`Noul`, `JevResponse`, `JevDecision` |
 | `router.py` | ✅ Tamamlandı | `IntentRouter` (Jev'e sorar, `winner`'a göre handler, confidence-gate + fallback) |
 | `middleware.py` | ✅ Tamamlandı | Async pipeline (intent resolution + agent döngüleri) |
 | `examples/basic_routing.py` | ✅ Tamamlandı | Mock + gerçek API modlu örnek ("Hava durumu nasıl?" → `weather_agent`) |
-| Test altyapısı (`tests/`) | ✅ Tamamlandı | `tests/test_jev_route.py` — 9 test, tamamen offline (mock transport); `python -m pytest` → 9 passed |
+| `examples/fastapi_service.py` | ✅ Tamamlandı | FastAPI servisi: `/healthz`, `/options`, `/route`, `/audit`, `/refunds`; offline mock transport |
+| Test altyapısı (`tests/`) | ✅ Tamamlandı | 19 test, tamamen offline: `test_jev_route.py` (10), `test_fastapi_service.py` (6), `test_packaging.py` (3) |
+| `py.typed` (PEP 561) | ✅ Tamamlandı | Tip işaretçisi eklendi ve wheel'e dahil edildi (`Typing :: Typed`) |
 | Lint & type check | ✅ Tamamlandı | `python -m ruff check .` → **All checks passed!** · `python -m mypy src` → **Success: no issues found in 4 source files** |
 | `LICENSE` | ✅ Tamamlandı | MIT lisans metni eklendi |
 | CI (GitHub Actions) | 🟡 Hazır (yerel) | `.github/workflows/ci.yml` yazıldı; ilk push sonrası ilk run doğrulanacak |
-| Git deposu | 🟡 Başlatıldı | `git init -b main` + `git add -A` yapıldı (12 dosya stage'de); `git commit` bekliyor |
-| Yayınlama (PyPI) | ⬜ Başlanmadı | `python -m build` CI'da hazır; etiketleme/release bekliyor |
+| Git deposu | 🟡 Devam ediyor | `main` dalına 2 commit push edildi; **GitHub About açıklaması ve topics hâlâ boş** |
+| PyPI dağıtımı | 🟡 Doğrulandı (upload yok) | `python -m build` → sdist + wheel; `python -m twine check dist/*` → **PASSED (ikisi de)**; gerçek `twine upload` manuel bekliyor |
 
 **Lejant:** ✅ Tamam · 🟡 Devam ediyor · ⬜ Başlanmadı · ⛔ Engellendi
 
@@ -48,15 +50,19 @@ JevRoute/
 ├── README.md                # Mimari şema (Mermaid) + Installation & Quickstart
 ├── documentation.md         # Bu dosya (durum + yol haritası)
 ├── examples/
-│   └── basic_routing.py     # "Hava durumu nasıl?" → weather_agent örneği (mock + live)
+│   ├── basic_routing.py     # "Hava durumu nasıl?" → weather_agent örneği (mock + live)
+│   └── fastapi_service.py   # Aynı router'ın FastAPI endpoint'leri içinde kullanımı
 ├── tests/
-│   └── test_jev_route.py    # Basit smoke testleri (pytest + mock transport, 9 test)
+│   ├── test_jev_route.py    # Örnek akışa dayalı smoke testleri (10 test)
+│   ├── test_fastapi_service.py  # TestClient ile FastAPI örneği (6 test)
+│   └── test_packaging.py    # Sürüm + PyPI metadata tutarlılığı (3 test)
 └── src/
     └── jev_route/
         ├── __init__.py      # Genel API (public exports)
         ├── core.py          # Jev veri yapıları, JevClient, JevDecision, hatalar
         ├── router.py        # IntentRouter: kayıt, Jev'e sorma, confidence-gate, dispatch
-        └── middleware.py    # Async middleware pipeline (intent + agent loop)
+        ├── middleware.py    # Async middleware pipeline (intent + agent loop)
+        └── py.typed         # PEP 561 tip işaretçisi
 ```
 
 ---
@@ -184,7 +190,73 @@ git push -u origin main
 
 ---
 
-## 7. Değişiklik Günlüğü (bu doküman)
+## 7. Ekosistem Görünürlüğü — Başvuru Süreçleri (araştırma, 2026-09-26)
+
+Dış listelere/dokümantasyona ekleme başvuruları **hesap gerektirdiği için
+yapılmadı**; süreçler aşağıda çıkarıldı.
+
+### 7.1 OpenRouter dokümantasyonu (cookbook / guide PR'ı)
+
+- Dokümantasyonun kaynağı **`OpenRouterTeam/docs`** reposudur (Mintlify;
+  `openrouter.ai/docs` buradan üretilir). Sayfalar `projects/docs/**` altında,
+  cookbook tarifleri `cookbook/` klasöründedir.
+- Bir tarifin ilgili model sayfasında listelenmesi için frontmatter'da model
+  ailesi bildirilir:
+
+  ```yaml
+  ---
+  title: Gate Agent Tool Calls with Jev
+  models:
+    - typesafe/jev
+  ---
+  ```
+
+  `author/name-prefix` biçimindedir; `typesafe/jev` girdisi `typesafe/jev-1.13`,
+  `~typesafe/jev-latest` ve `typesafe/jev-1.13:free` sayfalarını kapsar.
+- Frontmatter değiştirildikten sonra `bun run generate:docs:model-map` çalıştırılıp
+  `projects/web` içindeki `model-documentation-map.gen.ts` commit'lenmelidir;
+  *Validate Docs* iş akışı bu dosya bayatsa kırmızıya döner.
+- PR'de `mint validate`, `@openrouter/sdk` içeren kod bloklarının tip kontrolü ve
+  `bun run lint` zorunludur; **fork PR'ları preview URL alamaz** (secret erişimi).
+- `OpenRouterTeam/awesome-openrouter` ayrı bir **uygulama** listesidir:
+  `apps/<ad>/app.yaml` + `logo.png` ister, README elle düzenlenmez ve
+  **traction/notability kanıtı** (yıldız, kullanıcı, indirme, topluluk izi) arar.
+  Bu yüzden sıra şöyle olmalı: önce Jev'e özel bir cookbook/guide sayfası, sonra
+  (traction oluştuğunda) bu listeye başvuru.
+
+### 7.2 awesome-jev listeleri
+
+| Liste | Nasıl başvurulur | Kural / not |
+| --- | --- | --- |
+| `hellogumbo/awesome-jev` | `data/projects.json` içindeki `projects` dizisine **tek nesne** ekleyip PR; JSON düzenlemek istemezsen "Submit a project" issue şablonu | `npm run validate` çalıştırılır; README ve site CI'da üretilir, elle commit'lenmez. Kategori: *Integrations* ya da *SDKs & clients* |
+| `yibie/awesome-jev` | Yalnızca **tek kategori dosyası** düzenlenir (`categories/infra-sdks-integrations.md` veya `categories/classification-routing.md`), sonra `python3 scripts/build-readme.py` | README elle değiştirilmez; Jev'in somut bir karar için kullanıldığı kanıtlanmalı; **7 günlük pencerede en fazla 3 giriş** ve toplu/aynı iskeletli başvurular tek başvuru sayılır |
+
+İki liste de tek cümlelik giriş ister: *hangi karar + hangi gate + ne sağlıyor*.
+Başvurudan önce girişin çalıştırılabilir kanıta (test, demo çıktısı, ölçüm)
+dayanması gerekir; bu yüzden `tests/` ve `examples/` içeriği başvurunun parçasıdır.
+
+**Manuel yapılacaklar (hesap gerektirir):** (1) `OpenRouterTeam/docs` PR'ı,
+(2) `hellogumbo/awesome-jev` PR/issue, (3) `yibie/awesome-jev` PR'ı.
+
+---
+
+## 8. Değişiklik Günlüğü (bu doküman)
+
+- **2026-09-26** — Keşfedilebilirlik ve yayın hazırlığı turu. `pyproject.toml`
+  PEP 639'a taşındı (`license = "MIT"`, `license-files = ["LICENSE"]`),
+  classifiers/keywords genişletildi (`Framework :: AsyncIO`,
+  `Framework :: Pydantic :: 2`, Python 3.13), `fastapi` ve `dev` (artık `twine`)
+  extras'ları ile `Documentation`/`Changelog` URL'leri eklendi; PEP 561 için
+  `src/jev_route/py.typed` oluşturuldu ve wheel'e dahil edildi (`package-data`).
+  README'ye **"Why jev-route?"** (harness adaptörü değil, gömülebilir kütüphane)
+  bölümü, confidence gate **önce/sonra** kanıtı, asciinema/GIF kayıt talimatı ve
+  FastAPI örneği linki eklendi; yinelenen "Installation & Quickstart" başlığı
+  düzeltildi. Yeni `examples/fastapi_service.py` (gerçek, offline çalışan FastAPI
+  servisi) ile `tests/test_fastapi_service.py` ve `tests/test_packaging.py`
+  eklendi. Doğrulama: `ruff check .` → **All checks passed!**, `mypy src` →
+  **Success**, `pytest` → **19 passed**, `python -m build` + `twine check dist/*`
+  → **PASSED (ikisi de)**, `python examples/fastapi_service.py` → uvicorn ayağa
+  kalktı ve `/healthz` + `/route` beklenen JSON'u döndü. PyPI upload yapılmadı.
 
 - **2026-09-25 (3)** — GitHub yayını hazırlığı: `.gitignore` genişletildi (venv,
   `.env`, coverage, loglar, OS/IDE dosyaları), `LICENSE` (MIT) eklendi,

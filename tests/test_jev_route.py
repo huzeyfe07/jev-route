@@ -19,7 +19,14 @@ from typing import Any
 
 import pytest
 
-from jev_route import JevSettings, MiddlewarePipeline
+from jev_route import (
+    DecisionOutcome,
+    IntentRequest,
+    IntentRouter,
+    JevClient,
+    JevSettings,
+    MiddlewarePipeline,
+)
 
 PROJECT_ROOT = pathlib.Path(__file__).resolve().parents[1]
 EXAMPLE_PATH = PROJECT_ROOT / "examples" / "basic_routing.py"
@@ -168,6 +175,61 @@ async def test_agent_loop_demo_runs(
     captured = capsys.readouterr().out
     assert "plan" in captured
     assert "handled" in captured
+
+
+async def test_confidence_gate_never_reaches_a_weak_handler(example: ModuleType) -> None:
+    """The same weak winner executes without a gate, and is blocked with one.
+
+    The gate is the only difference between the two runs: identical client,
+    identical engine answer (`search_agent` at 0.42), identical handler.
+    """
+    prompt = example.AMBIGUOUS_PROMPT
+    executed: list[str] = []
+
+    def build_gated_router(threshold: float) -> tuple[JevClient, IntentRouter]:
+        client = example.build_client()
+        router = IntentRouter(
+            client,
+            name="gate-demo",
+            confidence_threshold=threshold,
+            fallback_label="human_handoff",
+        )
+
+        @router.tool("search_agent", description="web search that costs money per call")
+        async def search_agent(request: IntentRequest) -> dict[str, str]:
+            executed.append(request.input)
+            return {"tool": "search_agent"}
+
+        @router.fallback(label="human_handoff")
+        async def human_handoff(request: IntentRequest) -> dict[str, object]:
+            return {"escalated": True, "candidate": request.decision.winner}
+
+        return client, router
+
+    # BEFORE: the gate is disabled, so the 42% guess reaches the handler.
+    client, router = build_gated_router(0.0)
+    async with client:
+        ungated = await router.route(prompt)
+
+    assert ungated.handled is True
+    assert ungated.label == "search_agent"
+    assert ungated.decision.accepted is True
+    assert executed == [prompt]
+
+    # AFTER: the gate rejects the very same guess and escalates instead.
+    executed.clear()
+    client, router = build_gated_router(0.6)
+    async with client:
+        gated = await router.route(prompt)
+
+    decision = gated.decision
+    assert decision.winner == "search_agent"
+    assert decision.accepted is False
+    assert decision.outcome is DecisionOutcome.FALLBACK
+    assert decision.reason == "confidence 0.420 is below the threshold 0.600"
+    assert gated.label == "human_handoff"
+    assert gated.handled is True
+    assert executed == []
 
 
 async def test_middleware_pipeline_uses_onion_ordering() -> None:

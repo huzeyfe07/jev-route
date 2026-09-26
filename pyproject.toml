@@ -1,24 +1,43 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "jev-route"
 version = "0.2.0"
-description = "AI agent intent and tool router for Python, powered by the Jev decision engine."
+description = "Typed, confidence-gated intent and tool routing for Python agents, powered by the Jev decision model."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{ name = "JevRoute Contributors" }]
-keywords = ["agents", "intent-routing", "tool-routing", "openrouter", "httpx", "pydantic", "asyncio"]
+keywords = [
+    "agents",
+    "ai-agents",
+    "asyncio",
+    "confidence-gating",
+    "httpx",
+    "intent-routing",
+    "jev",
+    "llm-router",
+    "openrouter",
+    "pydantic",
+    "system-one",
+    "tool-calling",
+    "tool-routing",
+    "typesafe",
+]
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 3 - Alpha",
+    "Framework :: AsyncIO",
+    "Framework :: Pydantic :: 2",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed",
@@ -30,6 +49,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+fastapi = [
+    "fastapi>=0.110",
+    "uvicorn>=0.27",
+]
 dev = [
     "pytest>=7.4",
     "pytest-asyncio>=0.23",
@@ -37,18 +60,26 @@ dev = [
     "ruff>=0.4",
     "mypy>=1.9",
     "build>=1.2",
+    "twine>=5.1",
+    "fastapi>=0.110",
+    "tomli>=2.0; python_version < '3.11'",
 ]
 
 [project.urls]
 Homepage = "https://github.com/huzeyfe07/jev-route"
 Repository = "https://github.com/huzeyfe07/jev-route"
 Issues = "https://github.com/huzeyfe07/jev-route/issues"
+Documentation = "https://github.com/huzeyfe07/jev-route/blob/main/README.md"
+Changelog = "https://github.com/huzeyfe07/jev-route/blob/main/documentation.md"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+jev_route = ["py.typed"]
 
 [tool.pytest.ini_options]
 minversion = "7.0"
