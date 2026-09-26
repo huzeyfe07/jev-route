@@ -21,7 +21,8 @@ ilerlemeyi, mimari kararları ve açık soruları burada tutuyoruz.
 | --- | --- | --- |
 | Proje iskeleti | ✅ Tamamlandı | `src/` layout kuruldu |
 | `pyproject.toml` | ✅ Tamamlandı | PEP 639 (`license = "MIT"` + `license-files`), genişletilmiş classifiers/keywords, `fastapi` + `dev` extras, `Documentation`/`Changelog` URL'leri, `package-data: py.typed` |
-| `README.md` | ✅ Tamamlandı | Mimari şema, "Why jev-route?" farklılaşma bölümü, confidence gate **önce/sonra** kanıtı, asciinema/GIF kayıt talimatı, FastAPI örneği linki |
+| `README.md` | ✅ Tamamlandı | Mermaid mimari şeması, **"Why jev-route?"** farklılaşma bölümü, confidence gate **önce/sonra** kanıtı, **demo GIF** (badge'lerin altında), FastAPI örneği linki, 6 rozet (CI, Python, License, ruff, mypy, **PyPI**) |
+| `docs/demo.gif` | ✅ Tamamlandı | Ekrandan kaydedilen terminal demosu, ~926 KB, commit `9fb1d26`; README'de `![jev-route demo](docs/demo.gif)` olarak gömülü |
 | `core.py` | ✅ Tamamlandı | `JevClient` (async, `httpx.AsyncClient`), `Choice`/`Score`/`Noul`, `JevResponse`, `JevDecision` |
 | `router.py` | ✅ Tamamlandı | `IntentRouter` (Jev'e sorar, `winner`'a göre handler, confidence-gate + fallback) |
 | `middleware.py` | ✅ Tamamlandı | Async pipeline (intent resolution + agent döngüleri) |
@@ -31,9 +32,10 @@ ilerlemeyi, mimari kararları ve açık soruları burada tutuyoruz.
 | `py.typed` (PEP 561) | ✅ Tamamlandı | Tip işaretçisi eklendi ve wheel'e dahil edildi (`Typing :: Typed`) |
 | Lint & type check | ✅ Tamamlandı | `python -m ruff check .` → **All checks passed!** · `python -m mypy src` → **Success: no issues found in 4 source files** |
 | `LICENSE` | ✅ Tamamlandı | MIT lisans metni eklendi |
-| CI (GitHub Actions) | 🟡 Hazır (yerel) | `.github/workflows/ci.yml` yazıldı; ilk push sonrası ilk run doğrulanacak |
-| Git deposu | 🟡 Devam ediyor | `main` dalına 2 commit push edildi; **GitHub About açıklaması ve topics hâlâ boş** |
-| PyPI dağıtımı | 🟡 Doğrulandı (upload yok) | `python -m build` → sdist + wheel; `python -m twine check dist/*` → **PASSED (ikisi de)**; gerçek `twine upload` manuel bekliyor |
+| CI (GitHub Actions) | ✅ Yeşil | 3 run tamamlandı; en son run (#3, `9fb1d26` "docs: add demo gif") → **success**; ruff + mypy + pytest (3.10–3.12) + build + `twine check` |
+| Git deposu | ✅ Yayında | `main`'de **4 commit** push edildi; **GitHub About açıklaması ve 20 topic ekli** (2026-09-26) |
+| PyPI dağıtımı | ✅ Yayında | **v0.2.0** — https://pypi.org/project/jev-route/ · wheel + sdist, yükleme: 2026-09-26 12:57 UTC |
+| Ekosistem başvuruları | ⬜ Başlanmadı | OpenRouter docs cookbook PR'ı, `hellogumbo/awesome-jev`, `yibie/awesome-jev` — süreç §7'de, başvurular manuel |
 
 **Lejant:** ✅ Tamam · 🟡 Devam ediyor · ⬜ Başlanmadı · ⛔ Engellendi
 
@@ -43,12 +45,14 @@ ilerlemeyi, mimari kararları ve açık soruları burada tutuyoruz.
 
 ```
 JevRoute/
-├── .github/workflows/ci.yml # CI: ruff + mypy + pytest + build (Python 3.10-3.12)
-├── .gitignore               # venv, cache, .env, coverage, OS/IDE dosyaları
+├── .github/workflows/ci.yml # CI: ruff + mypy + pytest + build + twine check (3.10-3.12)
+├── .gitignore               # venv (test_env dahil), cache, .env, coverage, OS/IDE dosyaları
 ├── LICENSE                  # MIT
 ├── pyproject.toml           # Paketleme + araç konfigürasyonu
-├── README.md                # Mimari şema (Mermaid) + Installation & Quickstart
+├── README.md                # Mermaid şema + Why jev-route? + quickstart + demo GIF
 ├── documentation.md         # Bu dosya (durum + yol haritası)
+├── docs/
+│   └── demo.gif             # Terminal demosu (README'nin başında gömülü)
 ├── examples/
 │   ├── basic_routing.py     # "Hava durumu nasıl?" → weather_agent örneği (mock + live)
 │   └── fastapi_service.py   # Aynı router'ın FastAPI endpoint'leri içinde kullanımı
@@ -241,6 +245,20 @@ dayanması gerekir; bu yüzden `tests/` ve `examples/` içeriği başvurunun par
 ---
 
 ## 8. Değişiklik Günlüğü (bu doküman)
+
+- **2026-09-26 (2)** — **PyPI yayını gerçekleşti: `jev-route` v0.2.0** (wheel +
+  sdist, 12:57 UTC) ve CI yeşile döndü (run #3, `9fb1d26` → **success**). Depo
+  görünürlüğü tamamlandı: About açıklaması + 20 topic eklendi. README'ye **PyPI
+  rozeti** eklendi (mevcut 5 rozetin yanına, tek boşlukla, yeni satır açmadan) ve
+  **demo GIF** rozetlerin altına `![jev-route demo](docs/demo.gif)` olarak
+  gömüldü; artık gereksiz olan **asciinema/`.cast` kayıt talimatları bölümü
+  kaldırıldı** (kayıt ekrandan alındı). `.gitignore`'a **`test_env/`** eklendi —
+  yerel sanal ortam (1433 dosya) `git add -A` ile repoya girmesin diye. Durum
+  tablosu gerçek duruma çekildi: PyPI ✅ yayında, CI ✅ yeşil, About/topics ✅,
+  demo GIF ✅, ekosistem PR'ları ⬜ başlanmadı. Doğrulama: `ruff check .` →
+  All checks passed, `mypy src` → Success, `pytest` → **19 passed**.
+  *Not:* PyPI'da görünen uzun açıklama (README) bir sonraki sürüm yüklemesinde
+  güncellenir; rozet ve GIF bu yüzden PyPI sayfasında ancak o zaman görünür.
 
 - **2026-09-26** — Keşfedilebilirlik ve yayın hazırlığı turu. `pyproject.toml`
   PEP 639'a taşındı (`license = "MIT"`, `license-files = ["LICENSE"]`),

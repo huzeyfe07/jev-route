@@ -11,7 +11,9 @@ gate, and only then invokes the matching handler.
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Lint: ruff](https://img.shields.io/badge/lint-ruff-261230)](https://docs.astral.sh/ruff/)
-[![Types: mypy strict](https://img.shields.io/badge/types-mypy%20strict-blue)](https://mypy-lang.org/)
+[![Types: mypy strict](https://img.shields.io/badge/types-mypy%20strict-blue)](https://mypy-lang.org/) [![PyPI version](https://img.shields.io/pypi/v/jev-route.svg)](https://pypi.org/project/jev-route/)
+
+![jev-route demo](docs/demo.gif)
 
 </div>
 
@@ -241,52 +243,6 @@ Both branches are asserted by
 [`test_confidence_gate_never_reaches_a_weak_handler`](tests/test_jev_route.py):
 one test routes the same prompt through both configurations and checks that the
 handler call list stays empty when the gate is on.
-
-<details>
-<summary><strong>Recording the terminal demo (asciinema / GIF)</strong></summary>
-
-The demo is four short prompts, so 20–30 seconds of terminal output is enough.
-`asciinema` is POSIX-only — on Windows run it inside WSL2
-(`wsl --install`, then open Ubuntu) or use one of the alternatives below.
-
-```bash
-# 1. Check the timing first; the recording must not wait on anything.
-python examples/basic_routing.py
-
-# 2. Record a cast: --idle-time-limit caps long pauses, --cols keeps it narrow.
-mkdir -p docs
-asciinema rec docs/demo.cast --cols 100 --rows 32 --idle-time-limit 1.5 \
-  --title "jev-route: confidence-gated intent routing" \
-  -c "python examples/basic_routing.py"
-
-# 3. Render a GIF from the cast (agg: cargo install agg, or brew install agg).
-agg docs/demo.cast docs/demo.gif --font-size 14 --speed 1.5 --theme monokai
-
-# 4. Optional: publish the replayable text version and link that instead.
-asciinema upload docs/demo.cast
-```
-
-Windows-only option, if you would rather not install WSL:
-
-```powershell
-npm install -g terminalizer     # requires Node.js
-terminalizer record demo        # stop the recording with Ctrl+D
-terminalizer render demo        # -> demo.gif
-```
-
-Or record the terminal window with [ScreenToGif](https://www.screentogif.com/):
-crop to the window, 12–15 fps, trim the first and last seconds, export a GIF
-under ~2 MB. Keep either artefact in `docs/` and embed the GIF at the top of this
-README:
-
-```markdown
-[![jev-route demo](docs/demo.gif)]
-```
-
-Commit both files: the GIF is what people see on the repository page, the `.cast`
-is what they can replay at their own speed.
-
-</details>
 
 ### Embed it in a web service (FastAPI)
 
