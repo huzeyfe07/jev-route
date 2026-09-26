@@ -280,7 +280,7 @@ under ~2 MB. Keep either artefact in `docs/` and embed the GIF at the top of thi
 README:
 
 ```markdown
-[![jev-route demo](docs/demo.gif)](docs/demo.cast)
+[![jev-route demo](docs/demo.gif)]
 ```
 
 Commit both files: the GIF is what people see on the repository page, the `.cast`
